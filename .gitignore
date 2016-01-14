@@ -1,0 +1,3 @@
+flaskr.db
+*.pyc
+*.sql
