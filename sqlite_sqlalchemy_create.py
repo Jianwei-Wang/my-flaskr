@@ -3,17 +3,29 @@ from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flaskr import app
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 Base = declarative_base()
 
-class Users(Base):
+class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key = True)
     name = Column(String(250), nullable = False)
-    password = Column(String(250), nullable = False)
     email = Column(String(250), nullable = False)
+    password_hash = Column(String(128))
 
-class Composes(Base):
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+class Compose(Base):
     __tablename__ = 'composes'
     id = Column(Integer, primary_key = True)
     title = Column(Text, nullable = False)
@@ -27,14 +39,14 @@ DBsession = sessionmaker(bind=engine)
 dbsession = DBsession()
 
 def init_db():
-    new_user = Users(name = 'wangjw', password = '121', email = '550466233@qq.com')
+    new_user = User(name = 'wangjw', password = '121', email = '550466233@qq.com')
     dbsession.add(new_user)
     dbsession.commit()
-    new_user = Users(name = 'luofl', password = '123', email = '550466233@qq.com')
+    new_user = User(name = 'luofl', password = '123', email = 'w550466233@163.com')
     dbsession.add(new_user)
     dbsession.commit()
     
-    new_compose = Composes(title = 'Love', content = 'I love you!')
+    new_compose = Compose(title = 'Love', content = 'I love you!')
     dbsession.add(new_compose)
     dbsession.commit()
     dbsession.close()

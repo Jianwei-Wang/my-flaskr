@@ -14,12 +14,14 @@ import os
 #from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
-from sqlalchemy.orm.exc import NoResultFound
-#from sqlite_sqlalchemy_create import init_db, dbsession, Composes, Users
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from werkzeug.security import generate_password_hash, check_password_hash
+#from sqlite_sqlalchemy_create import init_db, dbsession, Compose, User
 
 
 # create our little application :)
 app = Flask(__name__)
+app.debug = True
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -76,21 +78,21 @@ def show_entries():
 #    db = get_db()
 #    cur = db.execute('select title, text from entries order by id desc')
 #    entries = cur.fetchall()
-    from sqlite_sqlalchemy_create import dbsession, Composes, Users
-    entries = dbsession.query(Composes).all()
+    from sqlite_sqlalchemy_create import dbsession, Compose, User
+    entries = dbsession.query(Compose).all()
     return render_template('show_entries.html', entries=entries)
 
 
 @app.route('/add', methods=['POST'])
 def add_entry():
-    from sqlite_sqlalchemy_create import dbsession, Composes, Users
+    from sqlite_sqlalchemy_create import dbsession, Compose, User
     if not session.get('logged_in'):
         abort(401)
 #    db = get_db()
 #    db.execute('insert into entries (title, text) values (?, ?)',
 #               [request.form['title'], request.form['text']])
 #    db.commit()
-    new_compose = Composes(title = request.form['title'],
+    new_compose = Compose(title = request.form['title'],
                            content = request.form['text'])
     dbsession.add(new_compose)
     dbsession.commit()
@@ -100,12 +102,13 @@ def add_entry():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    from sqlite_sqlalchemy_create import dbsession, Composes, Users
+    from sqlite_sqlalchemy_create import dbsession, Compose, User
     error = None
     if request.method == 'POST':
         try:
-            user = dbsession.query(Users).filter(Users.name == request.form['username']).one()
-            if user.password != request.form['password']:
+            user = dbsession.query(User).filter(User.name == request.form['username']).one()
+            print 'password:', request.form['password']
+            if not user.verify_password(request.form['password']):
                 error = 'Invalid password'
 #            if request.form['username'] != app.config['USERNAME']:
 #                error = 'Invalid username'
@@ -115,7 +118,7 @@ def login():
                 session['logged_in'] = True
                 flash('You were logged in')
                 return redirect(url_for('show_entries'))
-        except NoResultFound:
+        except (NoResultFound, MultipleResultsFound):
             error = 'Invalid username'
 
     return render_template('login.html', error=error)
