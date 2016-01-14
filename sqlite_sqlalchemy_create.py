@@ -10,6 +10,7 @@ class Users(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key = True)
     name = Column(String(250), nullable = False)
+    password = Column(String(250), nullable = False)
     email = Column(String(250), nullable = False)
 
 class Composes(Base):
@@ -26,7 +27,10 @@ DBsession = sessionmaker(bind=engine)
 dbsession = DBsession()
 
 def init_db():
-    new_user = Users(name = 'wangjw', email = '550466233@qq.com')
+    new_user = Users(name = 'wangjw', password = '121', email = '550466233@qq.com')
+    dbsession.add(new_user)
+    dbsession.commit()
+    new_user = Users(name = 'luofl', password = '123', email = '550466233@qq.com')
     dbsession.add(new_user)
     dbsession.commit()
     
