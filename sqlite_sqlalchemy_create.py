@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from flaskr import app
 
 Base = declarative_base()
 
@@ -17,14 +18,14 @@ class Composes(Base):
     title = Column(Text, nullable = False)
     content = Column(Text, nullable = False)
 
-engine = create_engine('sqlite:///sqlalchemy_sqlite.db')
+engine = create_engine('sqlite:///' + app.config['DATABASE'])
 Base.metadata.create_all(engine)
 
 Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 dbsession = DBsession()
 
-def initdb():
+def init_db():
     new_user = Users(name = 'wangjw', email = '550466233@qq.com')
     dbsession.add(new_user)
     dbsession.commit()
@@ -35,4 +36,4 @@ def initdb():
     dbsession.close()
 
 if __name__ == '__main__':
-    initdb()
+    init_db()
