@@ -1,10 +1,11 @@
 import sqlite3
 
+conn = sqlite3.connect('flaskr.db')
+c = conn.cursor()
+
 def initdb():
     '''Initializes the database with raw sentences.'''
 
-    conn = sqlite3.connect('flaskr.db')
-    c = conn.cursor()
     try:
         c.execute('''create table users(id integer primary key asc,
                                         name varchar(250) not null,
