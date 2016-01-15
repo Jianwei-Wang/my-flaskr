@@ -92,6 +92,37 @@ def show_entries():
     entries = dbsession.query(Compose).all()
     return render_template('show_entries.html', entries=entries)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    from sqlite_sqlalchemy_create import dbsession, User
+    if request.method == 'POST':
+        if not request.form['username']:
+            flash("Name can't be blank")
+        elif not request.form['email']:
+            flash("Email can't be blank")
+        elif not request.form['password']:
+            flash("Password can't be blank")
+        elif not request.form['confirm_password']:
+            flash("Confirm password can't be blank")
+        else:
+            try:
+                user = dbsession.query(User).filter(User.name == request.form['username']).one()
+                flash('Username exist, try other name')
+                return redirect(url_for('register'))
+            except NoResultFound:
+                try:
+                    user = dbsession.query(User).filter(User.email == request.form['email']).one()
+                    flash('This email had registed already! try other email')
+                    return redirect(url_for('register'))
+                except NoResultFound:
+                    new_user = User(name = request.form['username'],
+                                    password = request.form['password'],
+                                    email = request.form['email'])
+                    dbsession.add(new_user)
+                    dbsession.commit()
+                    flash('You can login now.')
+                    return redirect(url_for('login'))
+    return render_template('register.html')
 
 @app.route('/add', methods=['POST'])
 @login_required
