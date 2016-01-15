@@ -17,6 +17,9 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import LoginManager, login_required, login_user, logout_user
+from flask_wtf import Form
+from wtforms import StringField, TextAreaField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, Email
 #from sqlite_sqlalchemy_create import init_db, dbsession, Compose, User
 
 
@@ -40,6 +43,23 @@ app.config.update(dict(
     SECRET_KEY='development key',
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
+class RegisteForm(Form):
+    username = StringField('username', validators = [DataRequired()])
+    email = StringField('username', validators = [DataRequired(), Email()])
+    password = PasswordField('password', validators = [DataRequired()])
+    confirm = PasswordField('confirm', validators = [DataRequired()])
+    submit = SubmitField('submit')
+
+class LoginForm(Form):
+    name = StringField('name', validators = [DataRequired()])
+    password = PasswordField('password', validators = [DataRequired()])
+    submit = SubmitField('submit')
+
+class ArticleForm(Form):
+    title = StringField('title', validators = [DataRequired()])
+    content = TextAreaField('content', validators = [DataRequired()])
+    submit = SubmitField('submit')
 
 
 #def connect_db():
@@ -83,73 +103,79 @@ def close_db(error):
 #        g.sqlite_db.close()
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def show_entries():
 #    db = get_db()
 #    cur = db.execute('select title, text from entries order by id desc')
 #    entries = cur.fetchall()
     from sqlite_sqlalchemy_create import dbsession, Compose, User
+    form = ArticleForm()
     entries = dbsession.query(Compose).all()
-    return render_template('show_entries.html', entries=entries)
+
+    if form.validate_on_submit():
+        new_compose = Compose(title = form.title.data,
+                           content = form.content.data)
+        dbsession.add(new_compose)
+        dbsession.commit()
+        flash('New entry was successfully posted')
+        return redirect(url_for('show_entries'))
+
+    return render_template('show_entries.html', form=form, entries=entries)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     from sqlite_sqlalchemy_create import dbsession, User
-    if request.method == 'POST':
-        if not request.form['username']:
-            flash("Name can't be blank")
-        elif not request.form['email']:
-            flash("Email can't be blank")
-        elif not request.form['password']:
-            flash("Password can't be blank")
-        elif not request.form['confirm_password']:
-            flash("Confirm password can't be blank")
-        else:
+    form = RegisteForm()
+    if form.validate_on_submit():
+        try:
+            user = dbsession.query(User).filter(User.name == form.username.data).one()
+            flash('Username exist, try other name')
+            return redirect(url_for('register'))
+        except NoResultFound:
             try:
-                user = dbsession.query(User).filter(User.name == request.form['username']).one()
-                flash('Username exist, try other name')
+                user = dbsession.query(User).filter(User.email == form.email.data).one()
+                flash('This email had registed already! try other email')
                 return redirect(url_for('register'))
             except NoResultFound:
-                try:
-                    user = dbsession.query(User).filter(User.email == request.form['email']).one()
-                    flash('This email had registed already! try other email')
-                    return redirect(url_for('register'))
-                except NoResultFound:
-                    new_user = User(name = request.form['username'],
-                                    password = request.form['password'],
-                                    email = request.form['email'])
-                    dbsession.add(new_user)
-                    dbsession.commit()
-                    flash('You can login now.')
-                    return redirect(url_for('login'))
-    return render_template('register.html')
+                new_user = User(name = form.username.data,
+                                password = form.password.data,
+                                email = form.email.data)
+                dbsession.add(new_user)
+                dbsession.commit()
+                flash('You can login now.')
+                return redirect(url_for('login'))
+    else:
+        flash('Fill in block')
+    return render_template('register.html', form = form)
 
-@app.route('/add', methods=['POST'])
-@login_required
-def add_entry():
-    from sqlite_sqlalchemy_create import dbsession, Compose, User
-#    if not session.get('logged_in'):
-#        abort(401)
-#    db = get_db()
-#    db.execute('insert into entries (title, text) values (?, ?)',
-#               [request.form['title'], request.form['text']])
-#    db.commit()
-    new_compose = Compose(title = request.form['title'],
-                           content = request.form['text'])
-    dbsession.add(new_compose)
-    dbsession.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+#@app.route('/add', methods=['POST'])
+#@login_required
+#def add_entry():
+#    from sqlite_sqlalchemy_create import dbsession, Compose, User
+##    if not session.get('logged_in'):
+##        abort(401)
+##    db = get_db()
+##    db.execute('insert into entries (title, text) values (?, ?)',
+##               [request.form['title'], request.form['text']])
+##    db.commit()
+#    new_compose = Compose(title = request.form['title'],
+#                           content = request.form['text'])
+#    dbsession.add(new_compose)
+#    dbsession.commit()
+#    flash('New entry was successfully posted')
+#    return redirect(url_for('show_entries'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     from sqlite_sqlalchemy_create import dbsession, Compose, User
     error = None
-    if request.method == 'POST':
+
+    form = LoginForm()
+    if form.validate_on_submit():
         try:
-            user = dbsession.query(User).filter(User.name == request.form['username']).one()
-            if not user.verify_password(request.form['password']):
+            user = dbsession.query(User).filter(User.name == form.name.data).one()
+            if not user.verify_password(form.password.data):
                 error = 'Invalid password'
 #            if request.form['username'] != app.config['USERNAME']:
 #                error = 'Invalid username'
@@ -163,7 +189,7 @@ def login():
         except (NoResultFound, MultipleResultsFound):
             error = 'Invalid username'
 
-    return render_template('login.html', error=error)
+    return render_template('login.html', form=form, error=error)
 
 
 @app.route('/logout')
