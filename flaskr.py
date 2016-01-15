@@ -16,12 +16,22 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.login import LoginManager, login_required, login_user, logout_user
 #from sqlite_sqlalchemy_create import init_db, dbsession, Compose, User
 
 
 # create our little application :)
 app = Flask(__name__)
 app.debug = True
+login_manager = LoginManager()
+login_manager.session_protection = 'basic'
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def get_user(ident):
+    from sqlite_sqlalchemy_create import User, dbsession
+    return dbsession.query(User).filter(User.id == int(ident)).one()
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -84,10 +94,11 @@ def show_entries():
 
 
 @app.route('/add', methods=['POST'])
+@login_required
 def add_entry():
     from sqlite_sqlalchemy_create import dbsession, Compose, User
-    if not session.get('logged_in'):
-        abort(401)
+#    if not session.get('logged_in'):
+#        abort(401)
 #    db = get_db()
 #    db.execute('insert into entries (title, text) values (?, ?)',
 #               [request.form['title'], request.form['text']])
@@ -107,7 +118,6 @@ def login():
     if request.method == 'POST':
         try:
             user = dbsession.query(User).filter(User.name == request.form['username']).one()
-            print 'password:', request.form['password']
             if not user.verify_password(request.form['password']):
                 error = 'Invalid password'
 #            if request.form['username'] != app.config['USERNAME']:
@@ -116,6 +126,7 @@ def login():
 #                error = 'Invalid password'
             else:
                 session['logged_in'] = True
+                login_user(user)
                 flash('You were logged in')
                 return redirect(url_for('show_entries'))
         except (NoResultFound, MultipleResultsFound):
@@ -125,7 +136,9 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
+    logout_user()
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))

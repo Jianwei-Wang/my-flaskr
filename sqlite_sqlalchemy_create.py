@@ -4,15 +4,16 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flaskr import app
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.login import UserMixin
 
 
 Base = declarative_base()
 
-class User(Base):
+class User(UserMixin, Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key = True)
-    name = Column(String(250), nullable = False)
-    email = Column(String(250), nullable = False)
+    name = Column(String(128), nullable = False, unique = True, index = True)
+    email = Column(String(64), nullable = False, unique = True, index = True)
     password_hash = Column(String(128))
 
     @property
