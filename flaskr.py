@@ -20,7 +20,7 @@ from flask.ext.login import LoginManager, login_required, login_user, logout_use
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Email
-#from sqlite_sqlalchemy_create import init_db, dbsession, Compose, User
+from flask.ext.sqlalchemy import SQLAlchemy
 
 
 # create our little application :)
@@ -31,14 +31,16 @@ login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
+db = SQLAlchemy(app)
+
 @login_manager.user_loader
 def get_user(ident):
-    from sqlite_sqlalchemy_create import User, dbsession
-    return dbsession.query(User).filter(User.id == int(ident)).one()
+#    from models import User
+    return User.query.filter_by(id = int(ident)).first()
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, 'flaskr.db'),
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'flaskr.db'),
     DEBUG=True,
     SECRET_KEY='development key',
 ))
@@ -76,11 +78,38 @@ class ArticleForm(Form):
 #        db.cursor().executescript(f.read())
 #    db.commit()
 
+#from sqlalchemy import Column, Integer, String, Text
+#from werkzeug.security import generate_password_hash, check_password_hash
+#from flask.ext.login import UserMixin
+#
+#class User(UserMixin, db.Model):
+#    __tablename__ = 'users'
+#    id = Column(Integer, primary_key = True)
+#    name = Column(String(128), nullable = False, unique = True, index = True)
+#    email = Column(String(64), nullable = False, unique = True, index = True)
+#    password_hash = Column(String(128))
+#
+#    @property
+#    def password(self):
+#        raise AttributeError('password is not a readable attribute')
+#    @password.setter
+#    def password(self, password):
+#        self.password_hash = generate_password_hash(password)
+#    
+#    def verify_password(self, password):
+#        return check_password_hash(self.password_hash, password)
+#
+#class Compose(db.Model):
+#    __tablename__ = 'composes'
+#    id = Column(Integer, primary_key = True)
+#    title = Column(Text, nullable = False)
+#    content = Column(Text, nullable = False)
+from models import Compose, User
 
 @app.cli.command('initdb')
 def initdb_command():
     """Creates the database tables."""
-    from sqlite_sqlalchemy_create import init_db
+    from sqlite_flask_create import init_db
     init_db()
     print('Initialized the database.')
 
@@ -97,8 +126,8 @@ def initdb_command():
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database again at the end of the request."""
-    from sqlite_sqlalchemy_create import dbsession
-    dbsession.close()
+#    from models import db
+    db.session.close()
 #    if hasattr(g, 'sqlite_db'):
 #        g.sqlite_db.close()
 
@@ -108,15 +137,15 @@ def show_entries():
 #    db = get_db()
 #    cur = db.execute('select title, text from entries order by id desc')
 #    entries = cur.fetchall()
-    from sqlite_sqlalchemy_create import dbsession, Compose, User
+  #  from models import db, Compose, User
     form = ArticleForm()
-    entries = dbsession.query(Compose).all()
+    entries = Compose.query.all()
 
     if form.validate_on_submit():
         new_compose = Compose(title = form.title.data,
                            content = form.content.data)
-        dbsession.add(new_compose)
-        dbsession.commit()
+        db.session.add(new_compose)
+        db.session.commit()
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
 
@@ -124,24 +153,24 @@ def show_entries():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    from sqlite_sqlalchemy_create import dbsession, User
+#    from models import db, User
     form = RegisteForm()
     if form.validate_on_submit():
-        try:
-            user = dbsession.query(User).filter(User.name == form.username.data).one()
+        user = User.query.filter_by(name = form.username.data).first()
+        if user:
             flash('Username exist, try other name')
             return redirect(url_for('register'))
-        except NoResultFound:
-            try:
-                user = dbsession.query(User).filter(User.email == form.email.data).one()
+        else:
+            user = User.query.filter_by(email = form.email.data).first()
+            if user:
                 flash('This email had registed already! try other email')
                 return redirect(url_for('register'))
-            except NoResultFound:
+            else:
                 new_user = User(name = form.username.data,
                                 password = form.password.data,
                                 email = form.email.data)
-                dbsession.add(new_user)
-                dbsession.commit()
+                db.session.add(new_user)
+                db.session.commit()
                 flash('You can login now.')
                 return redirect(url_for('login'))
     else:
@@ -151,7 +180,7 @@ def register():
 #@app.route('/add', methods=['POST'])
 #@login_required
 #def add_entry():
-#    from sqlite_sqlalchemy_create import dbsession, Compose, User
+#    from models import dbsession, Compose, User
 ##    if not session.get('logged_in'):
 ##        abort(401)
 ##    db = get_db()
@@ -168,13 +197,15 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    from sqlite_sqlalchemy_create import dbsession, Compose, User
+   # from models import db, Compose, User
     error = None
 
     form = LoginForm()
     if form.validate_on_submit():
-        try:
-            user = dbsession.query(User).filter(User.name == form.name.data).one()
+        user = User.query.filter_by(name = form.name.data).first()
+        if not user:
+            error = 'Invalid username'
+        else:
             if not user.verify_password(form.password.data):
                 error = 'Invalid password'
 #            if request.form['username'] != app.config['USERNAME']:
@@ -186,8 +217,6 @@ def login():
                 login_user(user)
                 flash('You were logged in')
                 return redirect(url_for('show_entries'))
-        except (NoResultFound, MultipleResultsFound):
-            error = 'Invalid username'
 
     return render_template('login.html', form=form, error=error)
 
