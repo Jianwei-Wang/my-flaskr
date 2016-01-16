@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-  {% if session.logged_in %}
+  {% if current_user.can(Permission.WRITE_ARTICLES) %}
     <form method="post" class="add-entry">
 	{{ form.hidden_tag() }}
 	<li><dt>Title:</li>

@@ -4,7 +4,7 @@
 <div class="page">
   <h1>Flaskr</h1>
   <div class="metanav">
-  {% if not session.logged_in %}
+  {% if current_user.is_anonymous %}
     <a href="{{ url_for('register') }}">registe</a>
     <a href="{{ url_for('login') }}">login</a>
   {% else %}

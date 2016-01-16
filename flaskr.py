@@ -12,7 +12,7 @@
 
 import os
 #from sqlite3 import dbapi2 as sqlite3
-from flask import Flask, request, session, g, redirect, url_for, abort, \
+from flask import Flask, request, g, redirect, url_for, abort, \
      render_template, flash
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -28,13 +28,16 @@ from flask.ext.moment import Moment
 # create our little application :)
 app = Flask(__name__)
 app.debug = True
+
+db = SQLAlchemy(app)
+
+from models import Compose, User, Permission, Role, AnonymousUser
 login_manager = LoginManager()
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
+login_manager.anonymous_user = AnonymousUser
 login_manager.init_app(app)
 moment = Moment(app)
-
-db = SQLAlchemy(app)
 
 @login_manager.user_loader
 def get_user(ident):
@@ -91,7 +94,6 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 #    id = Column(Integer, primary_key = True)
 #    title = Column(Text, nullable = False)
 #    content = Column(Text, nullable = False)
-from models import Compose, User, Permission, Role
 
 @app.cli.command('initdb')
 def initdb_command():
@@ -141,7 +143,8 @@ def show_entries():
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
 
-    return render_template('show_entries.html', form=form, entries=entries)
+    return render_template('show_entries.html', form=form,
+                           entries=entries, Permission=Permission)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -259,7 +262,6 @@ def login():
 #            elif request.form['password'] != app.config['PASSWORD']:
 #                error = 'Invalid password'
             else:
-                session['logged_in'] = True
                 login_user(user)
                 flash('You were logged in')
                 return redirect(url_for('show_entries'))
@@ -271,6 +273,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
