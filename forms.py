@@ -1,6 +1,7 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, SubmitField, PasswordField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Email, Length, Regexp
+from flask.ext.pagedown.fields import PageDownField
 
 class RegisteForm(Form):
     username = StringField('username', validators = [DataRequired()])
@@ -15,10 +16,10 @@ class LoginForm(Form):
     submit = SubmitField('submit')
 
 
-class ArticleForm(Form):
-    title = StringField('title', validators = [DataRequired()])
-    content = TextAreaField('content', validators = [DataRequired()])
-    submit = SubmitField('submit')
+class ComposeForm(Form):
+    title = StringField('title')
+    body = PageDownField("What's on your mind?", validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 class ProfileForm(Form):
     real_name = StringField('Real name', validators = [Length(0, 64)])

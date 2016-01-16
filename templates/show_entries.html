@@ -3,16 +3,20 @@
   {% if current_user.can(Permission.WRITE_ARTICLES) %}
     <form method="post" class="add-entry">
 	{{ form.hidden_tag() }}
-	<li><dt>Title:</li>
-	{{ form.title.lable }} {{ form.title(size=30)}}
 	<li><dt>Text:</li>
-	{{ form.content.lable }} {{ form.content(cols=50, rows=20)}}
+	{{ form.body.lable }} {{ form.body(cols=50, rows=20)}}
 	{{ form.submit }}
     </form>
   {% endif %}
   <ul class="entries">
   {% for entry in entries %}
-    <li><h2>{{ entry.title }}</h2>{{ entry.content|safe }}
+    {% if entry.body_html %}
+    {{ entry.body_html|safe }}
+    <a href="{{ url_for('compose', id=entry.id) }}">
+      <span>Get in</span></a>
+    {% else %}
+    {{ entry.body }}
+    {% endif %}
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}

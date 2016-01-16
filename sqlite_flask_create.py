@@ -14,8 +14,12 @@ def init_db():
     db.session.add(new_user)
     db.session.commit()
     
-    new_compose = Compose(title = 'Love', content = 'I love you!')
+    new_compose = Compose(body = 'I love you!')
     db.session.add(new_compose)
+
+    User.generate_fake()
+    Compose.generate_fake()
+
     db.session.commit()
     db.session.close()
 

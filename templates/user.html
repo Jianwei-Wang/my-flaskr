@@ -29,4 +29,17 @@
     Last seen {{ user.last_seen }}.
   </p>
 </div>
+<div>
+  <ul class="entries">
+  {% for compose in composes %}
+    {% if compose.body_html %}
+    <li>{{ compose.body_html|safe }}
+    {% else %}
+    <li>{{ compose.body }}
+    {% endif %}
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+</div>
 {% endblock %}

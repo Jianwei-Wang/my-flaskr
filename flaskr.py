@@ -20,10 +20,11 @@ from flask.ext.login import LoginManager, login_required, login_user, logout_use
 #from flask_wtf import Form
 #from wtforms import StringField, TextAreaField, SubmitField, PasswordField
 #from wtforms.validators import DataRequired, Email
-from forms import RegisteForm, LoginForm, ArticleForm, ProfileForm, EditProfileAdminForm
+from forms import RegisteForm, LoginForm, ComposeForm, ProfileForm, EditProfileAdminForm
 from flask.ext.sqlalchemy import SQLAlchemy
 from decorators import permission_required, admin_required
 from flask.ext.moment import Moment
+from flask.ext.pagedown import PageDown
 
 # create our little application :)
 app = Flask(__name__)
@@ -32,12 +33,16 @@ app.debug = True
 db = SQLAlchemy(app)
 
 from models import Compose, User, Permission, Role, AnonymousUser
+db.event.listen(Compose.body, 'set', Compose.on_changed_body)
 login_manager = LoginManager()
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
 login_manager.anonymous_user = AnonymousUser
 login_manager.init_app(app)
+
 moment = Moment(app)
+
+pagedown = PageDown(app)
 
 @login_manager.user_loader
 def get_user(ident):
@@ -49,6 +54,7 @@ app.config.update(dict(
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'flaskr.db'),
     DEBUG=True,
     SECRET_KEY='development key',
+    FLASK_COPOSE_PER_PAGE = 10,
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
@@ -132,19 +138,49 @@ def show_entries():
 #    cur = db.execute('select title, text from entries order by id desc')
 #    entries = cur.fetchall()
   #  from models import db, Compose, User
-    form = ArticleForm()
-    entries = Compose.query.all()
+    form = ComposeForm()
+    composes = Compose.query.order_by(Compose.timestamp.desc()).all()
+    page = request.args.get('page', 1, type = int)
+    pagination = Compose.query.order_by(Compose.timestamp.desc()).paginate(
+                 page, per_page = app.config['FLASK_COPOSE_PER_PAGE'],
+                 error_out = False)
+#    composes = pagination.items
 
-    if form.validate_on_submit():
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+       form.validate_on_submit():
         new_compose = Compose(title = form.title.data,
-                           content = form.content.data)
+                              body = form.body.data,
+                              author = current_user._get_current_object())
         db.session.add(new_compose)
         db.session.commit()
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
 
-    return render_template('show_entries.html', form=form,
-                           entries=entries, Permission=Permission)
+    return render_template('show_entries.html', form=form, entries=composes,
+                           pagination = pagination, Permission=Permission,
+                           pagedown = pagedown)
+
+@app.route('/composes/<int:id>')
+def compose(id):
+    compose = Compose.query.get_or_404(id)
+    return render_template('compose.html', composes = [compose])
+
+@app.route('/edit/<int:id>', methods = ['get', 'post'])
+@login_required
+def edit(id):
+    compose = Compose.query.get_or_404(id)
+    if current_user != compose.author and not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    form = ComposeForm()
+    if form.validate_on_submit():
+        compose.body = form.body.data
+        db.session.add(compose)
+        db.session.commit()
+        flash('The article has been updated.')
+        return redirect(url_for('compose', id=compose.id))
+    form.body.data = compose.body
+    return render_template('edit.html', form = form, compose = compose)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -178,14 +214,12 @@ def user(username):
     user = User.query.filter_by(name = username).first()
     if user is None:
         abort(404)
-    return render_template('user.html', user = user)
+    composes = user.composes.order_by(Compose.timestamp.desc()).all()
+    return render_template('user.html', user = user, composes = composes)
 
 @app.route('/edit-profile', methods=['get', 'post'])
 @login_required
 def edit_profile():
-    print 'Is administrator:', current_user.is_administrator()
-    print 'Role id:', current_user.role_id
-    print 'Role name:', current_user.role.name
     form = ProfileForm()
     if form.validate_on_submit():
 	current_user.real_name = form.real_name.data
