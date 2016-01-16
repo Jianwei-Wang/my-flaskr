@@ -16,12 +16,14 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask.ext.login import LoginManager, login_required, login_user, logout_user
-from flask_wtf import Form
-from wtforms import StringField, TextAreaField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Email
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
+#from flask_wtf import Form
+#from wtforms import StringField, TextAreaField, SubmitField, PasswordField
+#from wtforms.validators import DataRequired, Email
+from forms import RegisteForm, LoginForm, ArticleForm, ProfileForm, EditProfileAdminForm
 from flask.ext.sqlalchemy import SQLAlchemy
-
+from decorators import permission_required, admin_required
+from flask.ext.moment import Moment
 
 # create our little application :)
 app = Flask(__name__)
@@ -30,6 +32,7 @@ login_manager = LoginManager()
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
 login_manager.init_app(app)
+moment = Moment(app)
 
 db = SQLAlchemy(app)
 
@@ -46,22 +49,6 @@ app.config.update(dict(
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
-class RegisteForm(Form):
-    username = StringField('username', validators = [DataRequired()])
-    email = StringField('username', validators = [DataRequired(), Email()])
-    password = PasswordField('password', validators = [DataRequired()])
-    confirm = PasswordField('confirm', validators = [DataRequired()])
-    submit = SubmitField('submit')
-
-class LoginForm(Form):
-    name = StringField('name', validators = [DataRequired()])
-    password = PasswordField('password', validators = [DataRequired()])
-    submit = SubmitField('submit')
-
-class ArticleForm(Form):
-    title = StringField('title', validators = [DataRequired()])
-    content = TextAreaField('content', validators = [DataRequired()])
-    submit = SubmitField('submit')
 
 
 #def connect_db():
@@ -104,7 +91,7 @@ class ArticleForm(Form):
 #    id = Column(Integer, primary_key = True)
 #    title = Column(Text, nullable = False)
 #    content = Column(Text, nullable = False)
-from models import Compose, User
+from models import Compose, User, Permission, Role
 
 @app.cli.command('initdb')
 def initdb_command():
@@ -130,6 +117,11 @@ def close_db(error):
     db.session.close()
 #    if hasattr(g, 'sqlite_db'):
 #        g.sqlite_db.close()
+
+@app.before_first_request
+def before_request():
+    if current_user is not None:
+        current_user.ping()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -177,6 +169,60 @@ def register():
         flash('Fill in block')
     return render_template('register.html', form = form)
 
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(name = username).first()
+    if user is None:
+        abort(404)
+    return render_template('user.html', user = user)
+
+@app.route('/edit-profile', methods=['get', 'post'])
+@login_required
+def edit_profile():
+    print 'Is administrator:', current_user.is_administrator()
+    print 'Role id:', current_user.role_id
+    print 'Role name:', current_user.role.name
+    form = ProfileForm()
+    if form.validate_on_submit():
+	current_user.real_name = form.real_name.data
+        current_user.location = form.location.data
+        current_user.about_me = form.about_me.data
+	db.session.add(current_user)
+	db.session.commit()
+	flash('Your profile has been updated.')
+	return redirect(url_for('.user', username = current_user.name))
+    form.real_name.data = current_user.real_name
+    form.location.data = current_user.location
+    form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', form = form)
+
+@app.route('/edit-profile/<int:id>', methods = ['get', 'post'])
+@login_required
+@admin_required
+def edit_profile_admin(id):
+    user = User.query.get_or_404(id)
+    form = EditProfileAdminForm(user = user)
+    if form.validate_on_submit():
+        user.name = form.name.data
+	user.email = form.email.data
+	user.real_name = form.real_name.data
+	user.location = form.location.data
+	user.about_me = form.about_me.data
+	user.role = Role.query.get(form.role.data)
+	db.session.add(user)
+	db.session.commit()
+	flash('The profile has been updated.')
+	return redirect(url_for('.user', username = user.name))
+    form.name.data = user.name 
+    form.email.data = user.email 
+    form.real_name.data = user.real_name 
+    form.location.data = user.location 
+    form.about_me.data = user.about_me 
+    form.role.data = user.role_id
+    return render_template('edit_profile_admin.html', form = form, user = user)
+    
+    
 #@app.route('/add', methods=['POST'])
 #@login_required
 #def add_entry():

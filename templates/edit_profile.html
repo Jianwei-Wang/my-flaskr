@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h2>Edit Profile</h2>
+  {% if error %}<p class="error"><strong>Error:</strong> {{ error }}{% endif %}
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <dl>
+      <dt>Real name:
+      <dd>{{ form.real_name() }}
+      <dt>Location:
+      <dd>{{ form.location() }}
+      <dt>About me:
+      <dd>{{ form.about_me() }}
+      <dd>{{ form.submit }}
+    </dl>
+  </form>
+{% endblock %}
