@@ -1,19 +1,8 @@
-{% extends "layout.html" %}
-{% block body %}
-  <h2>Login</h2>
-  {% if error %}<p class="error"><strong>Error:</strong> {{ error }}{% endif %}
-  <form method="post">
-    {{ form.hidden_tag() }}
-    <dl>
-      <dt>Username:
-      <dd>{{ form.username() }}
-      <dt>Email:
-      <dd>{{ form.email() }}
-      <dt>Password:
-      <dd>{{ form.password() }}
-      <dt>Confirm Password:
-      <dd>{{ form.confirm() }}
-      <dd>{{ form.submit }}
-    </dl>
-  </form>
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+	<h2>Register</h2>
+	<div class="col-md-4">
+	  	{{ wtf.quick_form(form) }}
+	</div>
 {% endblock %}

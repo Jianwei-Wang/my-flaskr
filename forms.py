@@ -5,7 +5,7 @@ from flask.ext.pagedown.fields import PageDownField
 
 class RegisteForm(Form):
     username = StringField('username', validators = [DataRequired()])
-    email = StringField('username', validators = [DataRequired(), Email()])
+    email = StringField('Email', validators = [DataRequired(), Email()])
     password = PasswordField('password', validators = [DataRequired()])
     confirm = PasswordField('confirm', validators = [DataRequired()])
     submit = SubmitField('submit')

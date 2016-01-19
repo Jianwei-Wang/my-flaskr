@@ -1,0 +1,142 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ADMINISTER	models.py	/^    ADMINISTER = 0x80$/;"	v	class:Permission
+AnonymousUser	models.py	/^class AnonymousUser(AnonymousUserMixin):$/;"	c
+Base	sqlite_sqlalchemy_create.py	/^Base = declarative_base()$/;"	v
+COMMENT	models.py	/^    COMMENT = 0x02$/;"	v	class:Permission
+Compose	models.py	/^class Compose(db.Model):$/;"	c
+Compose	sqlite_sqlalchemy_create.py	/^class Compose(Base):$/;"	c
+ComposeForm	forms.py	/^class ComposeForm(Form):$/;"	c
+DBsession	sqlite_sqlalchemy_create.py	/^DBsession = sessionmaker(bind=engine)$/;"	v
+EditProfileAdminForm	forms.py	/^class EditProfileAdminForm(Form):$/;"	c
+FOLLOW	models.py	/^    FOLLOW = 0x01$/;"	v	class:Permission
+LoginForm	forms.py	/^class LoginForm(Form):$/;"	c
+MODERATE_COMMENTS	models.py	/^    MODERATE_COMMENTS = 0x08$/;"	v	class:Permission
+Permission	models.py	/^class Permission:$/;"	c
+ProfileForm	forms.py	/^class ProfileForm(Form):$/;"	c
+RegisteForm	forms.py	/^class RegisteForm(Form):$/;"	c
+Role	models.py	/^class Role(db.Model):$/;"	c
+User	models.py	/^class User(UserMixin, db.Model):$/;"	c
+User	sqlite_sqlalchemy_create.py	/^class User(UserMixin, Base):$/;"	c
+WRITE_ARTICLES	models.py	/^    WRITE_ARTICLES = 0x04$/;"	v	class:Permission
+__init__	forms.py	/^    def __init__(self, user, *args, **kwargs):$/;"	m	class:EditProfileAdminForm
+__init__	models.py	/^    def __init__(self, **kwargs):$/;"	m	class:User
+__tablename__	models.py	/^    __tablename__ = 'composes'$/;"	v	class:Compose
+__tablename__	models.py	/^    __tablename__ = 'roles'$/;"	v	class:Role
+__tablename__	models.py	/^    __tablename__ = 'users'$/;"	v	class:User
+__tablename__	sqlite_sqlalchemy_create.py	/^    __tablename__ = 'composes'$/;"	v	class:Compose
+__tablename__	sqlite_sqlalchemy_create.py	/^    __tablename__ = 'users'$/;"	v	class:User
+about_me	forms.py	/^    about_me = TextAreaField('About me')$/;"	v	class:EditProfileAdminForm
+about_me	forms.py	/^    about_me = TextAreaField('About me')$/;"	v	class:ProfileForm
+about_me	models.py	/^    about_me = Column(Text())$/;"	v	class:User
+admin_required	decorators.py	/^def admin_required(f):$/;"	f
+app	flaskr.py	/^app = Flask(__name__)$/;"	v
+author_id	models.py	/^    author_id = Column(Integer, db.ForeignKey('users.id'))$/;"	v	class:Compose
+before_request	flaskr.py	/^def before_request():$/;"	f
+body	forms.py	/^    body = PageDownField("What's on your mind?", validators=[DataRequired()])$/;"	v	class:ComposeForm
+body	models.py	/^    body = Column(Text, nullable = False)$/;"	v	class:Compose
+body_html	models.py	/^    body_html = Column(Text)$/;"	v	class:Compose
+bootstrap	flaskr.py	/^bootstrap = Bootstrap(app)$/;"	v
+c	sqlite_create.py	/^c = conn.cursor()$/;"	v
+can	models.py	/^    def can(self, permissions):$/;"	m	class:AnonymousUser
+can	models.py	/^    def can(self, permissions):$/;"	m	class:User
+client	test_flaskr.py	/^def client(request):$/;"	f
+close_db	flaskr.py	/^def close_db(error):$/;"	f
+compose	flaskr.py	/^def compose(id):$/;"	f
+composes	models.py	/^    composes = db.relationship('Compose', backref = 'author', lazy = 'dynamic')$/;"	v	class:User
+confirm	forms.py	/^    confirm = PasswordField('confirm', validators = [DataRequired()])$/;"	v	class:RegisteForm
+confirmed	forms.py	/^    confirmed = BooleanField('Confirmed')$/;"	v	class:EditProfileAdminForm
+conn	sqlite_create.py	/^conn = sqlite3.connect('flaskr.db')$/;"	v
+content	sqlite_sqlalchemy_create.py	/^    content = Column(Text, nullable = False)$/;"	v	class:Compose
+db	flaskr.py	/^db = SQLAlchemy(app)$/;"	v
+dbsession	sqlite_sqlalchemy_create.py	/^dbsession = DBsession()$/;"	v
+decorated_function	decorators.py	/^        def decorated_function(*args, **kwargs):$/;"	f	function:permission_required.decorator
+decorator	decorators.py	/^    def decorator(f):$/;"	f	function:permission_required
+default	models.py	/^    default = Column(Boolean, default = False, index = True)$/;"	v	class:Role
+edit	flaskr.py	/^def edit(id):$/;"	f
+edit_profile	flaskr.py	/^def edit_profile():$/;"	f
+edit_profile_admin	flaskr.py	/^def edit_profile_admin(id):$/;"	f
+email	forms.py	/^    email = StringField('Email', validators = [DataRequired(), Email()])$/;"	v	class:RegisteForm
+email	forms.py	/^    email = StringField('Email', validators = [DataRequired(), Length(1, 64), Email()])$/;"	v	class:EditProfileAdminForm
+email	models.py	/^    email = Column(String(64), nullable = False, unique = True, index = True)$/;"	v	class:User
+email	sqlite_sqlalchemy_create.py	/^    email = Column(String(64), nullable = False, unique = True, index = True)$/;"	v	class:User
+engine	sqlite_sqlalchemy_create.py	/^engine = create_engine('sqlite:\/\/\/' + app.config['DATABASE'])$/;"	v
+entries	schema.sql	/^create table entries ($/;"	t
+entries.id	schema.sql	/^create table entries ($/;"	F
+entries.text	schema.sql	/^  title text not null,$/;"	F
+entries.title	schema.sql	/^  id integer primary key autoincrement,$/;"	F
+generate_fake	models.py	/^    def generate_fake(count=100):$/;"	m	class:Compose
+generate_fake	models.py	/^    def generate_fake(count=100):$/;"	m	class:User
+get_user	flaskr.py	/^def get_user(ident):$/;"	f
+id	models.py	/^    id = Column(Integer, primary_key = True)$/;"	v	class:Compose
+id	models.py	/^    id = Column(Integer, primary_key = True)$/;"	v	class:Role
+id	models.py	/^    id = Column(Integer, primary_key = True)$/;"	v	class:User
+id	sqlite_sqlalchemy_create.py	/^    id = Column(Integer, primary_key = True)$/;"	v	class:Compose
+id	sqlite_sqlalchemy_create.py	/^    id = Column(Integer, primary_key = True)$/;"	v	class:User
+init_db	sqlite_flask_create.py	/^def init_db():$/;"	f
+init_db	sqlite_sqlalchemy_create.py	/^def init_db():$/;"	f
+initdb	sqlite_create.py	/^def initdb():$/;"	f
+initdb_command	flaskr.py	/^def initdb_command():$/;"	f
+insert_roles	models.py	/^    def insert_roles():$/;"	m	class:Role
+is_administrator	models.py	/^    def is_administrator(self):$/;"	m	class:AnonymousUser
+is_administrator	models.py	/^    def is_administrator(self):$/;"	m	class:User
+last_seen	models.py	/^    last_seen = Column(DateTime())$/;"	v	class:User
+location	forms.py	/^    location = StringField('Location', validators = [Length(0, 64)])$/;"	v	class:EditProfileAdminForm
+location	forms.py	/^    location = StringField('Location', validators = [Length(0, 64)])$/;"	v	class:ProfileForm
+location	models.py	/^    location = Column(String(128))$/;"	v	class:User
+login	flaskr.py	/^def login():$/;"	f
+login	test_flaskr.py	/^def login(client, username, password):$/;"	f
+login_manager	flaskr.py	/^login_manager = LoginManager()$/;"	v
+logout	flaskr.py	/^def logout():$/;"	f
+logout	test_flaskr.py	/^def logout(client):$/;"	f
+member_since	models.py	/^    member_since = Column(DateTime(), default = datetime.utcnow)$/;"	v	class:User
+moment	flaskr.py	/^moment = Moment(app)$/;"	v
+name	forms.py	/^    name = StringField('Real name', validators = [DataRequired(), Length(1, 64),$/;"	v	class:EditProfileAdminForm
+name	forms.py	/^    name = StringField('name', validators = [DataRequired()])$/;"	v	class:LoginForm
+name	models.py	/^    name = Column(String(128), nullable = False, unique = True, index = True)$/;"	v	class:User
+name	models.py	/^    name = Column(String(64), unique = True)$/;"	v	class:Role
+name	sqlite_sqlalchemy_create.py	/^    name = Column(String(128), nullable = False, unique = True, index = True)$/;"	v	class:User
+on_changed_body	models.py	/^    def on_changed_body(target, value, oldvalue, initiator):$/;"	m	class:Compose
+pagedown	flaskr.py	/^pagedown = PageDown(app)$/;"	v
+password	forms.py	/^    password = PasswordField('password', validators = [DataRequired()])$/;"	v	class:LoginForm
+password	forms.py	/^    password = PasswordField('password', validators = [DataRequired()])$/;"	v	class:RegisteForm
+password	models.py	/^    def password(self):$/;"	m	class:User
+password	models.py	/^    def password(self, password):$/;"	m	class:User
+password	sqlite_sqlalchemy_create.py	/^    def password(self):$/;"	m	class:User
+password	sqlite_sqlalchemy_create.py	/^    def password(self, password):$/;"	m	class:User
+password_hash	models.py	/^    password_hash = Column(String(128))$/;"	v	class:User
+password_hash	sqlite_sqlalchemy_create.py	/^    password_hash = Column(String(128))$/;"	v	class:User
+permission_required	decorators.py	/^def permission_required(permission):$/;"	f
+permissions	models.py	/^    permissions = Column(Integer)$/;"	v	class:Role
+ping	models.py	/^    def ping(self):$/;"	m	class:User
+real_name	forms.py	/^    real_name = StringField('Real name', validators = [Length(0, 64)])$/;"	v	class:EditProfileAdminForm
+real_name	forms.py	/^    real_name = StringField('Real name', validators = [Length(0, 64)])$/;"	v	class:ProfileForm
+real_name	models.py	/^    real_name = Column(String(128))$/;"	v	class:User
+register	flaskr.py	/^def register():$/;"	f
+role	forms.py	/^    role = SelectField('Role', coerce = int)$/;"	v	class:EditProfileAdminForm
+role_id	models.py	/^    role_id = Column(Integer, db.ForeignKey('roles.id'))$/;"	v	class:User
+show_entries	flaskr.py	/^def show_entries():$/;"	f
+submit	forms.py	/^    submit = SubmitField('Submit')$/;"	v	class:ComposeForm
+submit	forms.py	/^    submit = SubmitField('Submit')$/;"	v	class:EditProfileAdminForm
+submit	forms.py	/^    submit = SubmitField('Submit')$/;"	v	class:ProfileForm
+submit	forms.py	/^    submit = SubmitField('submit')$/;"	v	class:LoginForm
+submit	forms.py	/^    submit = SubmitField('submit')$/;"	v	class:RegisteForm
+teardown	test_flaskr.py	/^    def teardown():$/;"	f	function:client
+test_empty_db	test_flaskr.py	/^def test_empty_db(client):$/;"	f
+test_login_logout	test_flaskr.py	/^def test_login_logout(client):$/;"	f
+test_messages	test_flaskr.py	/^def test_messages(client):$/;"	f
+timestamp	models.py	/^    timestamp = Column(DateTime, index = True, default = datetime.utcnow)$/;"	v	class:Compose
+title	forms.py	/^    title = StringField('title')$/;"	v	class:ComposeForm
+title	models.py	/^    title = Column(Text)$/;"	v	class:Compose
+title	sqlite_sqlalchemy_create.py	/^    title = Column(Text, nullable = False)$/;"	v	class:Compose
+user	flaskr.py	/^def user(username):$/;"	f
+username	forms.py	/^    username = StringField('username', validators = [DataRequired()])$/;"	v	class:RegisteForm
+users	models.py	/^    users = db.relationship('User', backref = 'role', lazy = 'dynamic')$/;"	v	class:Role
+validate_email	forms.py	/^    def validate_email(self, field):$/;"	m	class:EditProfileAdminForm
+validate_username	forms.py	/^    def validate_username(self, field):$/;"	m	class:EditProfileAdminForm
+verify_password	models.py	/^    def verify_password(self, password):$/;"	m	class:User
+verify_password	sqlite_sqlalchemy_create.py	/^    def verify_password(self, password):$/;"	m	class:User

@@ -102,6 +102,8 @@ class AnonymousUser(AnonymousUserMixin):
 
     def is_administrator(self):
         return False
+    def ping(self):
+	pass
 
 class Compose(db.Model):
     __tablename__ = 'composes'

@@ -1,16 +1,15 @@
-{% extends "layout.html" %}
-{% block body %}
-    <form method="post" class="add-entry">
-	{{ form.hidden_tag() }}
-	<li><dt>Text:</li>
-	{{ form.body.lable }} {{ form.body(cols=50, rows=20)}}
-	{{ form.submit }}
-    </form>
-  <ul class="entries">
-    {% if compose.body_html %}
-    {{ compose.body_html|safe }}
-    {% else %}
-    {{ entry.body }}
-    {% endif %}
-  </ul>
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+	<div class="col-md-4">
+                {{ wtf.quick_form(form) }}
+	</div>
+
+	<ul class="entries">
+		{% if compose.body_html %}
+			{{ compose.body_html|safe }}
+		{% else %}
+ 			{{ entry.body }}
+		{% endif %}
+	</ul>
 {% endblock %}

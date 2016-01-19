@@ -1,24 +1,34 @@
-{% extends "layout.html" %}
-{% block body %}
-  {% if current_user.can(Permission.WRITE_ARTICLES) %}
-    <form method="post" class="add-entry">
-	{{ form.hidden_tag() }}
-	<li><dt>Text:</li>
-	{{ form.body.lable }} {{ form.body(cols=50, rows=20)}}
-	{{ form.submit }}
-    </form>
-  {% endif %}
-  <ul class="entries">
-  {% for entry in entries %}
-    {% if entry.body_html %}
-    {{ entry.body_html|safe }}
-    <a href="{{ url_for('compose', id=entry.id) }}">
-      <span>Get in</span></a>
-    {% else %}
-    {{ entry.body }}
-    {% endif %}
-  {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
-  {% endfor %}
-  </ul>
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+	<div class="col-md-4">
+	{% if current_user.can(Permission.WRITE_ARTICLES) %}
+	{{ wtf.quick_form(form) }}
+	</div>
+	{% endif %}
+	<ul class="posts">
+	    {% for entry in entries %}
+	    <li class="post">
+	        <div class="post-thumbnail">
+	            <a href="{{ url_for('.user', username=entry.author.name) }}">
+			    IMG
+	            </a>
+	        </div>
+	        <div class="post-content">
+	            <div class="post-date">{{ moment(entry.timestamp).fromNow() }}</div>
+	            <div class="post-author"><a href="{{ url_for('.user', username=entry.author.name) }}">{{ entry.author.name }}</a></div>
+		    {% if entry.body_html %}
+	            <div class="post-body">{{ entry.body_html|safe }}</div>
+		    {% else %}
+	            <div class="post-body">{{ entry.body }}</div>
+		    {% endif %}
+	            <div>
+			<a href="{{ url_for('compose', id=entry.id) }}">
+			<span>Get in</span></a>
+	            </div>
+	        </div>
+	    </li>
+	    {% endfor %}
+	</ul>
 {% endblock %}

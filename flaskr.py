@@ -25,6 +25,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from decorators import permission_required, admin_required
 from flask.ext.moment import Moment
 from flask.ext.pagedown import PageDown
+from flask.ext.bootstrap import Bootstrap
 
 # create our little application :)
 app = Flask(__name__)
@@ -42,6 +43,7 @@ login_manager.init_app(app)
 
 moment = Moment(app)
 
+bootstrap = Bootstrap(app)
 pagedown = PageDown(app)
 
 @login_manager.user_loader
