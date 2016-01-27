@@ -2,33 +2,64 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block page_content %}
-	<div class="col-md-4">
-	{% if current_user.can(Permission.WRITE_ARTICLES) %}
-	{{ wtf.quick_form(form) }}
-	</div>
-	{% endif %}
-	<ul class="posts">
-	    {% for entry in entries %}
-	    <li class="post">
-	        <div class="post-thumbnail">
-	            <a href="{{ url_for('.user', username=entry.author.name) }}">
-   			 <img class="img-rounded profile-thumbnail" src="{{ url_for('static', filename='1.png') }}" height="40">
-	            </a>
-	        </div>
-	        <div class="post-content">
-	            <div class="post-date">{{ moment(entry.timestamp).fromNow() }}</div>
-	            <div class="post-author"><a href="{{ url_for('.user', username=entry.author.name) }}">{{ entry.author.name }}</a></div>
-		    {% if entry.body_html %}
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                {{ wtf.quick_form(form) }}
+                {% endif %}
+            </div>
+            <!-- Blog Entries Column -->
+            <div class="col-md-8">
+
+	        {% for entry in entries %}
+                    <h2>
+	                {% if entry.title %}
+		            <a href="{{ url_for('compose', id=entry.id) }}">{{ entry.title }}</a>
+	                {% else %}
+                            <a href="{{ url_for('compose', id=entry.id) }}">Blog Post Title</a>
+	                {% endif %}
+                    </h2>
+                    <p class="lead">
+                        by <a href="{{ url_for('.user', username=entry.author.name) }}">{{ entry.author.name }}</a>
+                    </p>
+                    <p><span class="glyphicon glyphicon-time"></span>{{ moment(entry.timestamp).fromNow() }}</p>
+	            {% if entry.body_html %}
 	            <div class="post-body">{{ entry.body_html|safe }}</div>
-		    {% else %}
+	            {% else %}
 	            <div class="post-body">{{ entry.body }}</div>
-		    {% endif %}
-	            <div>
-			<a href="{{ url_for('compose', id=entry.id) }}">
-			<span>Get in</span></a>
-	            </div>
-	        </div>
-	    </li>
-	    {% endfor %}
-	</ul>
+	            {% endif %}
+                    <a class="btn btn-primary" href="{{ url_for('compose', id=entry.id) }}">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
+                    <hr>
+	        {% endfor %}
+
+                <!-- Pager -->
+                <ul class="pager">
+                    <li class="previous">
+                        <a href="#">&larr; Older</a>
+                    </li>
+                    <li class="next">
+                        <a href="#">Newer &rarr;</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Your Website 2016</p>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+        </footer>
+
+    </div>
 {% endblock %}
