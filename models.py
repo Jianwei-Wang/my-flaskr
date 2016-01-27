@@ -5,6 +5,7 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 from datetime import datetime
 from markdown import markdown
 import bleach
+import hashlib
 
 class Permission:
     FOLLOW = 0x01
@@ -95,6 +96,15 @@ class User(UserMixin, db.Model):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+    def gravatar(self, size = 100, default = 'identicon', rating = 'g'):
+#        if request.is_secure:
+#            url = 'https://secure.gravatar.com/avatar'
+#	else:
+        url = 'http://www.gravatar.com/avatar'
+        hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+	return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+		url = url, hash = hash, size = size, default = default, rating = rating)
+
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
