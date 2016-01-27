@@ -141,12 +141,12 @@ def show_entries():
 #    entries = cur.fetchall()
   #  from models import db, Compose, User
     form = ComposeForm()
-    composes = Compose.query.order_by(Compose.timestamp.desc()).all()
+    # composes = Compose.query.order_by(Compose.timestamp.desc()).all()
     page = request.args.get('page', 1, type = int)
     pagination = Compose.query.order_by(Compose.timestamp.desc()).paginate(
                  page, per_page = app.config['FLASK_COPOSE_PER_PAGE'],
                  error_out = False)
-#    composes = pagination.items
+    composes = pagination.items
 
     if current_user.can(Permission.WRITE_ARTICLES) and \
        form.validate_on_submit():
