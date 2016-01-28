@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block page_content %}
+<div class="page-header">
+	<img class="img-rounded" src="{{ url_for('static', filename = '1.png') }}">
+	<div class="profile-header">
+		<h1>{{ user.name }}</h1>
+		{% if user.real_name or user.location %}
+		<p>
+	        {% if user.real_name %}{{ user.real_name }}{% endif %}
+	        {% if user.location %}
+		From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>
+	        {% endif %}
+		</p>
+		{% endif %}
+		{% if current_user.is_administrator() %}
+		<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+		{% endif %}
+		{% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+		<p>Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
+	        <p>
+	        	{% if user == current_user %}
+	        	<a class="btn btn-default" href="{{ url_for('main.edit_profile') }}">Edit Profile</a>
+	        	{% endif %}
+	        	{% if current_user.is_administrator() %}
+	        	<a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+	        	{% endif %}
+	        </p>
+	</div>
+</div>
+<!---
+<div>
+  <ul class="entries">
+  {% for compose in composes %}
+    {% if compose.body_html %}
+    <li>{{ compose.body_html|safe }}
+    {% else %}
+    <li>{{ compose.body }}
+    {% endif %}
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+</div>
+-->
+{% endblock %}

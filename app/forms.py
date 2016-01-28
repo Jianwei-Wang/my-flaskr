@@ -28,7 +28,7 @@ class ProfileForm(Form):
     submit = SubmitField('Submit')
 
 class EditProfileAdminForm(Form):
-    name = StringField('Real name', validators = [DataRequired(), Length(1, 64),
+    name = StringField('Name', validators = [DataRequired(), Length(1, 64),
                                                   Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                                   'Usernames must have only letters'
                                                   'numbers, dots or underscores')])

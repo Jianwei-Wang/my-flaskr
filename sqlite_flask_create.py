@@ -17,8 +17,8 @@ def init_db():
     new_compose = Compose(body = 'I love you!')
     db.session.add(new_compose)
 
-    User.generate_fake()
-    Compose.generate_fake()
+    User.generate_fake(50)
+    Compose.generate_fake(count = 500)
 
     db.session.commit()
     db.session.close()
