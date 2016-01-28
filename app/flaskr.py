@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import login_required, login_user, logout_user, current_user
 from forms import RegisteForm, LoginForm, ComposeForm, ProfileForm, EditProfileAdminForm
 from decorators import permission_required, admin_required
-from app import pagedown, login_manager
+from app import pagedown, login_manager, db
 from models import Compose, User, Permission
 
 main = Blueprint('main', __name__)
@@ -115,8 +115,6 @@ def register():
                 db.session.commit()
                 flash('You can login now.')
                 return redirect(url_for('main.login'))
-    else:
-        flash('Fill in block')
     return render_template('register.html', form = form)
 
 @main.route('/user/<username>')
@@ -172,22 +170,20 @@ def edit_profile_admin(id):
     
 @main.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
-
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(name = form.name.data).first()
         if not user:
-            error = 'Invalid username'
+            flash('Invalid username')
         else:
             if not user.verify_password(form.password.data):
-                error = 'Invalid password'
+                flash('Invalid password')
             else:
                 login_user(user)
                 flash('You were logged in')
                 return redirect(url_for('main.show_entries'))
 
-    return render_template('login.html', form=form, error=error)
+    return render_template('login.html', form=form)
 
 
 @main.route('/logout')

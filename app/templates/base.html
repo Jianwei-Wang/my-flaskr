@@ -34,6 +34,7 @@
 				<li><a href="{{ url_for('main.logout') }}">Sign Out</a></li>
 				{% else %}
 				<li><a href="{{ url_for('main.login') }}">Sign In</a></li>
+				<li><a href="{{ url_for('main.register') }}">Sign Up</a></li>
 				{% endif %}
 			</ul>
 		</div>
@@ -44,7 +45,7 @@
 <div class="container">
 	{% for message in get_flashed_messages() %}
 	<div class="alert alert-warning">
-		<button type="button" class="close" data-dismiss="alert">Yeah<button>
+		<button type="button" class="close" data-dismiss="alert"><button>
 		{{ message }}
 	</div>
 	{% endfor %}
