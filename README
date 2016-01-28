@@ -9,6 +9,13 @@
 
     ~ How do I use it?
 
+      0. installation
+         sudo apt-get install python-pip
+	 pip install virtualenv
+	 vritualenv ~/virt_env/flask
+	 source ~/virt_env/flask/bin/activate
+	 pip install -r requirements.txt
+
       1. edit the configuration in the flaskr.py file or
          export an FLASKR_SETTINGS environment variable
          pointing to a configuration file.
