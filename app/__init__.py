@@ -30,7 +30,7 @@ def create_app():
     from models import Compose, User, Permission, Role, AnonymousUser
     db.event.listen(Compose.body, 'set', Compose.on_changed_body)
     login_manager.session_protection = 'basic'
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'main.login'
     login_manager.anonymous_user = AnonymousUser
     login_manager.init_app(app)
     from flaskr import main as main_blueprint
