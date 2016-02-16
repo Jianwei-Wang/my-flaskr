@@ -27,6 +27,9 @@ def create_app():
     ))
     app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
+#     from sqlite_flask_create import init_db
+#     init_db()
+
     from models import Compose, User, Permission, Role, AnonymousUser
     db.event.listen(Compose.body, 'set', Compose.on_changed_body)
     login_manager.session_protection = 'basic'

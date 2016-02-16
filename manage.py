@@ -12,4 +12,7 @@ if __name__ == '__main__':
         port = int(sys.argv[2])
     except IndexError:
         port = 5000
+
+#     from sqlite_flask_create import init_db
+#     init_db()
     app.run(host = host, port = port)

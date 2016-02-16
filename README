@@ -31,6 +31,10 @@
          the application will greet you on
          http://localhost:5000/
 
+      4. run on Tencent cloud server with gunicorn web server.
+
+      sudo /home/wangjw/virt_env/flask/bin/gunicorn -b 0.0.0.0:80 manage:app
+
     ~ Is it tested?
 
       You betcha.  Run the `test_flaskr.py` file to see
